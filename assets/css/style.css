@@ -272,3 +272,9 @@ dialog::backdrop{background:rgba(5,10,15,.5)}
 .b-emblem{width:52px;height:auto;flex:none}
 .b-mast-t{flex:1;min-width:0}
 @media (max-width:860px){header.top{position:static}.tb-actions{width:100%;justify-content:flex-end;padding-top:0;padding-bottom:10px}}
+@media (max-width:860px){
+  .b-kpis>div:last-child:nth-child(odd){grid-column:1/-1}
+  .b-card .b-t th,.b-card .b-t td{padding:4px 5px;font-size:12px}
+  .b-mast{flex-wrap:wrap}.b-no{text-align:left}
+  .tip{max-width:calc(100vw - 24px)}
+}

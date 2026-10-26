@@ -27,7 +27,7 @@ const fmtDate = (dk, style) => { const d=new Date(dk*DAY); const loc=LANG==="pt"
 function tipHtml(title, rows, raw){ return `<div class="th">${esc(title)}</div>`+rows.map(([k,v])=>`<div class="tr"><span>${esc(k)}</span><b>${raw?v:esc(v)}</b></div>`).join(""); }
 function placeTip(e){ const tp=$("tip"); if(tp.hidden) return; const pad=14, w=tp.offsetWidth, h=tp.offsetHeight;
   let x=e.clientX+pad, y=e.clientY+pad; if(x+w>innerWidth-8) x=e.clientX-w-pad; if(y+h>innerHeight-8) y=e.clientY-h-pad; tp.style.left=Math.max(8,x)+"px"; tp.style.top=Math.max(8,y)+"px"; }
-function showTip(e, html){ const tp=$("tip"); tp.innerHTML=html; tp.hidden=false; placeTip(e); }
+function showTip(e, html){ const tp=$("tip"); tp.innerHTML=html; tp.hidden=false; window._tipAt=Date.now(); placeTip(e); }
 function hideTip(){ const tp=$("tip"); if(tp) tp.hidden=true; }
 function toast(msg,ms=2600){const el=$("toast");el.textContent=msg;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,ms);}
 const store = { get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}} };
@@ -558,22 +558,29 @@ $("lang-en").addEventListener("click",()=>{ LANG="en"; store.set("sima.lang","en
 $("btnPdf").addEventListener("click",()=> typeof bulletinPDF==="function" ? bulletinPDF() : exportPDF());
 $("btnRefresh").addEventListener("click",()=>load());
 const cvMain=$("chart");
-cvMain.addEventListener("mousemove",e=>{ if(!GEO||!CUR) return; const r=cvMain.getBoundingClientRect(); const i=Math.floor((e.clientX-r.left-GEO.padL)/GEO.step);
+cvMain.addEventListener("pointermove",e=>{ if(!GEO||!CUR) return; const r=cvMain.getBoundingClientRect(); const i=Math.floor((e.clientX-r.left-GEO.padL)/GEO.step);
   const ii=Math.max(0,Math.min(GEO.n-1,i)); if(ii!==HOVER){ HOVER=ii; setOHLC(ii); drawMain(); } });
-cvMain.addEventListener("mouseleave",()=>{ HOVER=null; if(CUR) setOHLC(CUR.cs.length-1); drawMain(); hideTip(); });
-cvMain.addEventListener("mousemove",e=>{ if(!GEO||!CUR||HOVER==null) return hideTip(); const c=CUR.cs[HOVER]; if(!c) return hideTip();
+cvMain.addEventListener("pointerleave",e=>{ if(e.pointerType!=="mouse") return; HOVER=null; if(CUR) setOHLC(CUR.cs.length-1); drawMain(); hideTip(); });
+cvMain.addEventListener("pointermove",e=>{ if(!GEO||!CUR||HOVER==null) return hideTip(); const c=CUR.cs[HOVER]; if(!c) return hideTip();
   const ma=S.ma&&CUR.cs.length>=4?maOf(CUR.cs)[HOVER]:null, prev=HOVER>0?CUR.cs[HOVER-1].c:null, ch=prev?(c.c/prev-1)*100:null;
   showTip(e, tipHtml(`${CUR.tk} · ${fmtDate(c.t, S.agg==="M"?"M":"long")}`,[[t("open"),fmtN(c.o)],[t("high"),fmtN(c.h)],[t("low"),fmtN(c.l)],
     [LANG==="pt"?"Fecho":"Close",fmtN(c.c)+" "+unitLbl(CUR.prod)],[t("change"),`<span class="${cls(ch)}">${fmtPct(ch)}</span>`],[t("tipRecords"),c.v]].concat(ma!=null?[[t("tipMA"),fmtN(ma)]]:[]),true)); });
 const cvIdx=$("idxChart");
-cvIdx.addEventListener("mousemove",e=>{ if(!IGEO||!IDX.length) return; const r=cvIdx.getBoundingClientRect(); const i=Math.max(0,Math.min(IGEO.n-1,Math.floor((e.clientX-r.left-IGEO.padL)/IGEO.step)));
+cvIdx.addEventListener("pointermove",e=>{ if(!IGEO||!IDX.length) return; const r=cvIdx.getBoundingClientRect(); const i=Math.max(0,Math.min(IGEO.n-1,Math.floor((e.clientX-r.left-IGEO.padL)/IGEO.step)));
   if(i!==IHOVER){ IHOVER=i; renderIndex(); } const c=IDX[i], p=i>0?IDX[i-1].c:null;
   showTip(e, tipHtml(`${t("index")} · ${fmtDate(c.t, S.agg==="M"?"M":"long")}`,[[t("tipIndex"),fmtN(c.c,2)],[t("tipPrev"),`<span class="${cls(p?(c.c/p-1)*100:null)}">${fmtPct(p?(c.c/p-1)*100:null)}</span>`],[LANG==="pt"?"Desde o início":"Since start",`<span class="${cls(c.c-100)}">${fmtPct(c.c-100)}</span>`],[t("rptProducts"),c.v]],true)); });
-cvIdx.addEventListener("mouseleave",()=>{ IHOVER=null; renderIndex(); hideTip(); });
+cvIdx.addEventListener("pointerleave",e=>{ if(e.pointerType!=="mouse") return; IHOVER=null; renderIndex(); hideTip(); });
+// toque: um toque no gráfico mostra o popup desse ponto (pointerdown dispara o mesmo cálculo que o movimento)
+for(const cv of [cvMain,cvIdx]){ cv.style.touchAction="pan-y";
+  cv.addEventListener("pointerdown",e=>{ if(e.pointerType!=="mouse"){ cv.dispatchEvent(new PointerEvent("pointermove",e)); cv.dispatchEvent(new PointerEvent("pointermove",e)); clearTimeout(cv._tt); cv._tt=setTimeout(()=>{ hideTip(); },3500); } }); }
+// toque em elementos com popup (mini-gráficos, mapa, preço por mercado)
+document.addEventListener("touchstart",e=>{ window._touchAt=Date.now(); if(e.target===cvMain||e.target===cvIdx) return; const el=e.target.closest&&e.target.closest("[data-tip]"); if(!el){ hideTip(); return; }
+  const tch=e.touches[0]; showTip({clientX:tch.clientX,clientY:tch.clientY}, el.dataset.tip); clearTimeout(document._tt); document._tt=setTimeout(hideTip,3500); },{passive:true});
+window.addEventListener("scroll",()=>{ if(Date.now()-(window._tipAt||0)>700) hideTip(); },{passive:true});
 // popups genéricos: qualquer elemento com data-tip
 document.addEventListener("mouseover",e=>{ const el=e.target.closest&&e.target.closest("[data-tip]"); if(el) showTip(e, el.dataset.tip); });
 document.addEventListener("mousemove",e=>{ const el=e.target.closest&&e.target.closest("[data-tip]"); if(el) placeTip(e); });
-document.addEventListener("mouseout",e=>{ const el=e.target.closest&&e.target.closest("[data-tip]"); if(el && !el.contains(e.relatedTarget)) hideTip(); });
+document.addEventListener("mouseout",e=>{ if(Date.now()-(window._touchAt||0)<1500) return; const el=e.target.closest&&e.target.closest("[data-tip]"); if(el && !el.contains(e.relatedTarget)) hideTip(); });
 $("btnReset").addEventListener("click",()=>{ Object.assign(S,{prov:"",mkt:"",sel:"",cat:"",period:0,agg:"W",q:""}); $("q").value=""; renderFilters(); renderAll(); toast(t("filtersCleared"),1600); });
 let rT; window.addEventListener("resize",()=>{ clearTimeout(rT); rT=setTimeout(()=>{ drawMain(); renderIndex(); },120); });
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>{ drawMain(); renderIndex(); renderHeat(); });

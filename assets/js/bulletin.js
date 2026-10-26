@@ -197,7 +197,7 @@ function partHtml(R, qn, idx, multi){
   const cards=R.mainStats.map(s=>{ const n=qn(); const rows=bChangeRows(s);
     return `<article class="panel b-card"><header><div><b class="b-tk">${esc(pTk(s.prod))}</b> ${esc(pName(s.prod))}</div><div class="num b-avg">${fmtN(s.avg)} <small>${esc(unitLbl(s.prod))}</small> <span class="chg ${cls(s.chg)}">${fmtPct(s.chg)}</span></div></header>
       <h4>${esc(bProdTitle(s,L))}</h4><p>${esc(bProdLead(s))} ${esc(bProdText(s,q6))}</p>
-      ${rows.length?`<div class="b-tw"><table class="b-t"><caption>${esc(tf("qPriceVar",{n,p:lowerName(s.prod)}))}</caption><thead><tr><th>${esc(t("mercado"))}</th><th class="r">${esc(t("semAntL"))}</th><th class="r">${esc(t("semRecL"))}</th><th class="r">${esc(t("mud"))}</th></tr></thead>
+      ${rows.length?`<div class="b-tw"><table class="b-t"><caption>${esc(tf("qPriceVar",{n,p:lowerName(s.prod)}))}</caption><thead><tr><th>${esc(t("mercado"))}</th><th class="r">${esc(t("semAnt"))}</th><th class="r">${esc(t("semRec"))}</th><th class="r">${esc(t("mud"))}</th></tr></thead>
       <tbody>${rows.map(r=>`<tr><td>${esc(shortMkt(r.mkt))}</td><td class="r num">${fmtN(r.prev)}</td><td class="r num">${fmtN(r.cur)}</td><td class="r num ${cls(r.pct)}">${fmtPct(r.pct)}</td></tr>`).join("")}</tbody></table></div>`:""}
     </article>`; }).join("");
   const n6=qn();
@@ -230,7 +230,7 @@ function renderBulletin(){
   const weeks=bWeeks(), provs=[...new Set(S.obs.map(o=>o.prov))].filter(p=>p&&p!=="—").sort((a,b)=>a.localeCompare(b,"pt"));
   const mkts=[...new Set(S.obs.filter(o=>!B.prov||o.prov===B.prov).map(o=>o.mkt))].filter(m=>m&&m!=="—").sort((a,b)=>a.localeCompare(b,"pt"));
   const ctrl=`<section class="filters b-ctrl">
-    <div class="fld"><label for="bWeek">${esc(t("bWeek"))}</label><select id="bWeek">${weeks.map(w=>`<option value="${w}"${R0&&w===R0.w0?" selected":""}>${esc(fmtD(w,{day:"2-digit",month:"short"}))} - ${esc(fmtD(w+6,{day:"2-digit",month:"short",year:"numeric"}))}</option>`).join("")}</select></div>
+    <div class="fld"><label for="bWeek">${esc(t("bWeek"))}</label><select id="bWeek">${weeks.map(w=>`<option value="${w}"${R0&&w===R0.w0?" selected":""}>${esc(fmtD(w,{day:"2-digit",month:"2-digit"}))}–${esc(fmtD(w+6,{day:"2-digit",month:"2-digit",year:"2-digit"}))}</option>`).join("")}</select></div>
     <div class="fld"><label for="bProv">${esc(t("bProv"))}</label><select id="bProv"><option value="">${esc(t("allF"))}</option>${provs.map(p=>`<option${p===B.prov?" selected":""}>${esc(p)}</option>`).join("")}</select></div>
     <div class="fld"><label for="bMkt">${esc(t("mercado"))}</label><select id="bMkt"><option value="">${esc(t("all"))}</option>${mkts.map(m=>`<option value="${esc(m)}"${m===B.market?" selected":""}>${esc(m)}</option>`).join("")}</select></div>
     <div class="fld"><label for="bLevel">${esc(t("bLevel"))}</label><select id="bLevel"><option value="ALL"${B.level==="ALL"?" selected":""}>${esc(t("bAllLevels"))}</option>${LEVELS.map(l=>`<option value="${l}"${l===B.level?" selected":""}>${esc(lvName(l))}</option>`).join("")}</select></div>
