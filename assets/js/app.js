@@ -87,6 +87,16 @@ function resolveProduct(v, dom){
   if(dom && dom[s]){ const m=PROD_BY_NORM[norm(dom[s])]; if(m) return m; }
   return s;
 }
+// Tipo de vendedor / nível de mercado: reclassifica valores antigos do formulário
+// ("Nivel de Grossista Mercado" -> Grossista, "Nivel de Retalhista Mercado" -> Retalhista, etc.)
+function normSeller(v){
+  if(v==null || String(v).trim()==="") return "—";
+  const s=norm(v);
+  if(s.includes("grossista")) return "Grossista";
+  if(s.includes("retalhista")) return "Retalhista";
+  if(s.includes("produtor")) return "Produtor";
+  return String(v).trim();
+}
 // Campos adicionais do registo de produto: proveniência, quantidades (kg), sexo dos vendedores, transporte
 function extraFields(c, dom){
   const dv=(f,v)=>(dom&&dom[f]&&dom[f][v]!=null)?dom[f][v]:v;
@@ -154,7 +164,7 @@ async function loadLive(){
     D.kept++; PD.kept++; if(pr.unit==="un") PD.perUnit++;
     obs.push({ d: dayKey(ms), prod, cat: PROD[prod]?.cat || dv(C.domains,"categoria",c.categoria) || "",
       prov: dv(P.domains,"provincia",pp.provincia)||"—", dist: dv(P.domains,"distrito",pp.distrito)||"",
-      mkt: dv(P.domains,"mercado",pp.mercado)||"—", sel: dv(P.domains,"tipo_vendedor",pp.tipo_vendedor)||"—", price, unit: pr.unit, lat: pp.__lat, lon: pp.__lon, loc: dv(P.domains,"localizacao",pp.localizacao)||"",
+      mkt: dv(P.domains,"mercado",pp.mercado)||"—", sel: normSeller(dv(P.domains,"tipo_vendedor",pp.tipo_vendedor)), price, unit: pr.unit, lat: pp.__lat, lon: pp.__lon, loc: dv(P.domains,"localizacao",pp.localizacao)||"",
       ...extraFields(c, C.domains) });
   }
   // Não misturar unidades no mesmo produto: se o produto tem preços por kg, os preços por unidade são postos de parte;
