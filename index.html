@@ -34,7 +34,7 @@
       <button role="tab" data-v="market" aria-pressed="false" data-i="tabMarket">Preços</button>
       <button role="tab" data-v="bulletin" aria-pressed="false" data-i="tabBulletin">Boletim semanal</button>
     </div>
-    <div class="tb-actions"><button class="btn" id="btnRefresh" data-i="refresh">Actualizar</button><button class="btn primary" id="btnPdf" data-i="pdf">Exportar PDF</button></div>
+    <div class="tb-actions"><button class="btn" id="btnRefresh" data-i="refresh">Actualizar</button><span class="xl-wrap"><button class="btn" id="btnXl" type="button" aria-haspopup="true" aria-expanded="false">Exportar Excel</button><div class="xl-menu" id="xlMenu" role="menu" hidden></div></span><button class="btn primary" id="btnPdf" data-i="pdf">Exportar PDF</button></div>
   </div></nav>
 </header>
 <div class="tape" aria-label="Ticker"><div class="tape-track" id="tape"></div></div>
@@ -129,5 +129,7 @@
 <script src="assets/js/app.js" defer></script>
 <script src="assets/js/bulletin.js" defer></script>
 <script src="assets/js/about.js" defer></script>
+<script src="assets/js/xlsx-writer.js" defer></script>
+<script src="assets/js/excel.js" defer></script>
 </body>
 </html>

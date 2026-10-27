@@ -24,6 +24,10 @@ Plataforma web, no estilo de uma bolsa de valores, para acompanhar a evolução 
   - **um nível** (retalhista, grossista ou produtor): boletim só desse nível;
   - **um mercado**: boletim só desse mercado (com um nível ou com todos);
   - **todos os níveis**: um único PDF com uma parte por nível (Parte I, II, III), cada uma com separador próprio, seguida da informação comum (quantidades, pecuária, anexo e ficha técnica).
+- **Exportar Excel** (botão no topo), com duas opções:
+  - **Dados brutos**: todos os registos de preço, um por linha (data, semana, província, distrito, mercado, tipo de vendedor, produto, preço, unidade, proveniência, quantidade, vendedores por sexo), com filtros e uma folha "Leia-me".
+  - **Relatório formatado**: folhas Resumo (indicadores e cotações), Séries, Gráficos (gráficos de linhas nativos do Excel, editáveis), Preço por mercado, Registos recentes e Boletim (semana, província, mercado e nível escolhidos no separador Boletim semanal). Respeita os filtros do separador Preços.
+  Os ficheiros são gerados no próprio navegador, sem enviar dados para outro serviço.
 - **Sobre o SIMA**: o que é o sistema, como os dados são recolhidos, cobertura actual, metodologia e lista de produtos.
 - **Sobre o SIMA**: separador com a descrição do sistema, a recolha de dados, a cobertura actual, a metodologia e a lista de produtos monitorados.
 - **Português / Inglês**: o botão PT | EN traduz a interface, os produtos, as categorias e o relatório PDF.
@@ -36,7 +40,11 @@ config.js               Configuração (URL do serviço, camadas, idioma, etc.)
 assets/css/style.css    Estilos (tema claro e escuro automático)
 assets/js/catalog.js    Catálogo de produtos, categorias e códigos (do XLSForm)
 assets/js/i18n.js       Textos em português e inglês
-assets/js/app.js        Leitura do ArcGIS, cálculos, gráficos e PDF
+assets/js/app.js        Leitura do ArcGIS, cálculos e gráficos
+assets/js/bulletin.js   Boletim semanal (ecrã e PDF)
+assets/js/about.js      Separador "Sobre o SIMA"
+assets/js/excel.js      Exportação para Excel
+assets/js/xlsx-writer.js Gerador de ficheiros .xlsx (sem bibliotecas externas)
 assets/favicon.svg      Ícone
 iniciar-windows.bat     Abre o sistema no computador (Windows)
 iniciar-mac-linux.command  Abre o sistema no computador (macOS / Linux)

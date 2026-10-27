@@ -17,6 +17,7 @@ const ABOUT_TXT = {
     s2l: [
       ["Preços", "Cotações de todos os produtos, ao estilo de uma bolsa de valores: último preço, variação, gráfico de velas, preço por mercado, maiores subidas e descidas, índice SIMA e mapa do mercado. Os filtros permitem escolher província, mercado, tipo de vendedor, categoria, período e intervalo."],
       ["Boletim semanal", "Análise da semana escolhida, com texto gerado a partir dos dados: dinâmica de preços dos produtos principais, preços semanais por mercado, fluxos de proveniência, quadros por nível de mercado, quantidades no grossista e pecuária. O boletim pode ser exportado em PDF para um nível de mercado, para um mercado ou com todos os níveis no mesmo documento, separados por partes."],
+      ["Exportar para Excel", "O botão «Exportar Excel» oferece duas opções: os dados brutos (todos os registos de preço, um por linha) ou um relatório formatado com as cotações, as séries de preços, gráficos do Excel, o preço por mercado, os registos recentes e o boletim da semana."],
       ["Português e inglês", "Toda a plataforma e o boletim em PDF estão disponíveis nas duas línguas (botão PT | EN)."]
     ],
     s3: "Metodologia",
@@ -49,6 +50,7 @@ const ABOUT_TXT = {
     s2l: [
       ["Prices", "Quotes for every product in a stock-exchange style: last price, change, candlestick chart, price by market, top movers, SIMA index and market map. Filters cover province, market, seller type, category, period and interval."],
       ["Weekly bulletin", "Analysis of the selected week, with text generated from the data: price dynamics of the main products, weekly prices by market, trade flows, tables by market level, wholesale quantities and livestock. The bulletin can be exported to PDF for one market level, for one market, or with all levels in one document, split into parts."],
+      ["Export to Excel", "The «Export Excel» button offers two options: the raw data (every price record, one per row) or a formatted report with quotes, price series, Excel charts, price by market, recent records and the weekly bulletin."],
       ["Portuguese and English", "The whole platform and the PDF bulletin are available in both languages (PT | EN button)."]
     ],
     s3: "Methodology",
