@@ -38,7 +38,7 @@ const S = { diag:null, obs:[], mode:"load", err:"", url: DEFAULT_URL, loadedAt:n
 
 /* ============ ArcGIS loader ============ */
 async function getJSON(url){ const r = await fetch(url); if(!r.ok) throw new Error("HTTP "+r.status); const j = await r.json(); if(j.error) throw new Error(j.error.message||"ArcGIS error"); return j; }
-async function fetchLayer(base){
+async function fetchLayer(base, geom=false){
   const meta = await getJSON(base+"?f=json");
   const oid = meta.objectIdField || (meta.fields||[]).find(f=>f.type==="esriFieldTypeOID")?.name || "objectid";
   const page = Math.min(meta.maxRecordCount||1000, 2000);
@@ -46,9 +46,9 @@ async function fetchLayer(base){
   (meta.fields||[]).forEach(f=>{ if(f.domain?.codedValues){ const m={}; f.domain.codedValues.forEach(c=>m[c.code]=c.name); domains[f.name.toLowerCase()]=m; }});
   let out=[], off=0;
   for(let i=0;i<200;i++){
-    const q = `${base}/query?where=1%3D1&outFields=*&returnGeometry=false&orderByFields=${encodeURIComponent(oid)}&resultOffset=${off}&resultRecordCount=${page}&f=json`;
+    const q = `${base}/query?where=1%3D1&outFields=*&returnGeometry=${geom?"true&outSR=4326":"false"}&orderByFields=${encodeURIComponent(oid)}&resultOffset=${off}&resultRecordCount=${page}&f=json`;
     const j = await getJSON(q);
-    const feats = (j.features||[]).map(f=>{ const a={}; for(const k in f.attributes) a[k.toLowerCase()]=f.attributes[k]; return a; });
+    const feats = (j.features||[]).map(f=>{ const a={}; for(const k in f.attributes) a[k.toLowerCase()]=f.attributes[k]; const g=f.geometry; if(g && isFinite(g.x) && isFinite(g.y) && Math.abs(g.y)<=90 && Math.abs(g.x)<=180 && !(g.x===0&&g.y===0)){ a.__lon=g.x; a.__lat=g.y; } return a; });
     out = out.concat(feats); off += feats.length;
     if(!feats.length || (!j.exceededTransferLimit && feats.length<page)) break;
   }
@@ -116,12 +116,12 @@ function toMs(v){
 async function loadLive(){
   const base = S.url.replace(/\/+$/,"").replace(/\?.*$/,"");
   const recBase = (SIMA_CONFIG.recordsServiceUrl||"").replace(/\/+$/,"") || base;
-  let [P,C] = await Promise.all([fetchLayer(recBase+"/"+SIMA_CONFIG.recordsLayer), fetchLayer(base+"/"+SIMA_CONFIG.productsTable)]);
+  let [P,C] = await Promise.all([fetchLayer(recBase+"/"+SIMA_CONFIG.recordsLayer, true), fetchLayer(base+"/"+SIMA_CONFIG.productsTable)]);
   // Se a camada de registos vier vazia (ex.: filtro ou permissões só na camada 0 da vista), tenta as alternativas do config.js
   const tried=[{url:recBase, rows:P.rows.length}];
   if(!P.rows.length && C.rows.length){
     for(const alt of (SIMA_CONFIG.recordsFallbackUrls||[])){ const u=String(alt).replace(/\/+$/,""); if(!u||u===recBase) continue;
-      try{ const P2=await fetchLayer(u+"/"+SIMA_CONFIG.recordsLayer); tried.push({url:u, rows:P2.rows.length}); if(P2.rows.length){ P=P2; break; } }
+      try{ const P2=await fetchLayer(u+"/"+SIMA_CONFIG.recordsLayer, true); tried.push({url:u, rows:P2.rows.length}); if(P2.rows.length){ P=P2; break; } }
       catch(e){ tried.push({url:u, rows:"erro: "+e.message}); } }
   }
   const D = S.diag = { url:base, at:new Date().toISOString(),
@@ -154,7 +154,7 @@ async function loadLive(){
     D.kept++; PD.kept++; if(pr.unit==="un") PD.perUnit++;
     obs.push({ d: dayKey(ms), prod, cat: PROD[prod]?.cat || dv(C.domains,"categoria",c.categoria) || "",
       prov: dv(P.domains,"provincia",pp.provincia)||"—", dist: dv(P.domains,"distrito",pp.distrito)||"",
-      mkt: dv(P.domains,"mercado",pp.mercado)||"—", sel: dv(P.domains,"tipo_vendedor",pp.tipo_vendedor)||"—", price, unit: pr.unit,
+      mkt: dv(P.domains,"mercado",pp.mercado)||"—", sel: dv(P.domains,"tipo_vendedor",pp.tipo_vendedor)||"—", price, unit: pr.unit, lat: pp.__lat, lon: pp.__lon, loc: dv(P.domains,"localizacao",pp.localizacao)||"",
       ...extraFields(c, C.domains) });
   }
   // Não misturar unidades no mesmo produto: se o produto tem preços por kg, os preços por unidade são postos de parte;
@@ -176,6 +176,9 @@ function demoData(){
     Amendoim_Pequeno:88,Amendoim_Grande:96,Gergelim_Branco:78,Soja:34,Mandioca_Seca:16,Batata_Reno:44,Batata_Doce:22,Cebola:56,Tomate:46,
     Repolho:18,Alho_Fino:240,Castanha_de_Caju:75,Banana:28,Laranja:32,Frango_Congelado:215,Carne_de_Vaca_1a:420,Farinha_de_Milho_Branca:42,Oleo:135,Açúcar_Castanho:78};
   base["Gergelim_(Branco)"]=base.Gergelim_Branco; delete base.Gergelim_Branco;
+  const XY={"Mercado Central":[-25.9692,32.5732],"Mercado do Zimpeto":[-25.8237,32.5591],"Mercado Municipal de Chokwé":[-24.5333,32.9833],"Mercado Municipal de Maxixe":[-23.8597,35.3472],
+    "Mercado Maquinino":[-19.8333,34.8500],"Mercado 38 Milimetros":[-19.1164,33.4833],"Mercado Kuachene":[-16.1564,33.5867],"Mercado Municipal de Manhiça":[-25.4000,32.8000],
+    "Mercado Municipal de Gondola":[-19.0667,33.6500],"Mercado Municipal de Nhamatanda":[-19.2667,34.2000]};
   const mkts=[["Mercado Central","Cidade de Maputo",1.12],["Mercado do Zimpeto","Cidade de Maputo",1.05],["Mercado Municipal de Chokwé","Gaza",.94],
     ["Mercado Municipal de Maxixe","Inhambane",1.0],["Mercado Maquinino","Sofala",1.02],["Mercado 38 Milimetros","Manica",.9],
     ["Mercado Kuachene","Tete",.97],["Mercado Municipal de Manhiça","Maputo",1.0],["Mercado Municipal de Gondola","Manica",.88],["Mercado Municipal de Nhamatanda","Sofala",.93]];
@@ -195,7 +198,7 @@ function demoData(){
           const ORIG=["Chimoio","Angónia","Lichinga","Gurué","Nampula","Manica","Chókwè","Nhamatanda","Mocuba","Sussundenga","Malema","Moamba"];
           const nO=1+Math.floor(rnd()*2), orig=[]; for(let k=0;k<nO;k++){ const o=ORIG[Math.floor(rnd()*ORIG.length)]; if(!orig.includes(o)) orig.push(o); }
           const nF=Math.floor(rnd()*3.2), nM=Math.max(0,Math.min(3-nF,1+Math.floor(rnd()*2)));
-          obs.push({d, prod:code, cat:PROD[code].cat, prov, dist:"", mkt:m, sel:s, price:Math.round(price*100)/100,
+          const xy=XY[m]||[null,null]; obs.push({d, prod:code, cat:PROD[code].cat, prov, dist:"", mkt:m, sel:s, price:Math.round(price*100)/100, lat:xy[0]!=null?xy[0]+(rnd()-.5)*0.004:undefined, lon:xy[1]!=null?xy[1]+(rnd()-.5)*0.004:undefined,
             orig, qty: s==="Grossista" ? Math.round((200+rnd()*4800)/50)*50 : 0, sf:nF, sm:nM, tr:null}); }
       }
     }
@@ -330,6 +333,7 @@ function renderAll(){
   CUR = SUMS.find(s=>s.prod===S.prod) || null;
   renderTape(); renderWatch(); renderQuote(); drawMain(); renderDepth(); renderMovers(); renderIndex(); renderHeat(); renderTrades(list);
   if(typeof renderBulletin==="function") renderBulletin();
+  if(typeof renderMap==="function") renderMap();
   if(typeof renderAbout==="function") renderAbout();
 }
 function renderTape(){
@@ -539,7 +543,7 @@ async function exportPDF(){
 }
 
 /* ============ events ============ */
-function selectProd(p){ S.prod=p; HOVER=null; CUR=SUMS.find(s=>s.prod===p)||null; renderWatch(); renderQuote(); drawMain(); renderDepth();
+function selectProd(p){ S.prod=p; HOVER=null; CUR=SUMS.find(s=>s.prod===p)||null; renderWatch(); renderQuote(); drawMain(); renderDepth(); if(typeof renderMap==="function") renderMap();
   if(window.matchMedia("(max-width:860px)").matches) $("quote").scrollIntoView({behavior:"smooth",block:"start"}); }
 document.addEventListener("click",e=>{ const el=e.target.closest("[data-p]"); if(el) selectProd(el.dataset.p); });
 $("wl").addEventListener("keydown",e=>{ if(e.key==="Enter"){ const tr=e.target.closest("tr[data-p]"); if(tr) selectProd(tr.dataset.p);} });

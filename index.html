@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -108,6 +109,11 @@
       </tr></thead><tbody id="trades"></tbody></table></div>
     </section>
   </div>
+  <section class="panel map-panel" aria-labelledby="mapTitle">
+    <div class="ph"><div><h2 id="mapTitle">Locais de registo de preços</h2><span class="hint" id="mapHint"></span></div><label class="map-by"><span id="mapByLbl">Cor por</span><select id="mapBy"></select></label></div>
+    <div class="map-box"><div id="map" role="region" aria-label="Mapa"></div><div id="mapMsg" class="map-msg" hidden></div></div>
+    <div class="map-legend" id="mapLegend"></div>
+  </section>
   <p class="foot" data-i="foot">Preço = preço médio por kg (MZN) das amostras recolhidas em cada registo do inquérito Survey123. Velas: abertura e fecho são médias do primeiro e último dia do intervalo; máximo e mínimo são as amostras extremas.</p>
   </div>
 
@@ -129,6 +135,8 @@
 <script src="assets/js/app.js" defer></script>
 <script src="assets/js/bulletin.js" defer></script>
 <script src="assets/js/about.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
+<script src="assets/js/map.js" defer></script>
 <script src="assets/js/xlsx-writer.js" defer></script>
 <script src="assets/js/excel.js" defer></script>
 </body>

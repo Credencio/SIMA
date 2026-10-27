@@ -10,6 +10,7 @@ Plataforma web, no estilo de uma bolsa de valores, para acompanhar a evolução 
 - **Preço por mercado**, **maiores subidas e descidas**, **mapa do mercado** por categoria e **últimos registos de preço**.
 - **Índice SIMA de preços** (base 100 no início do período).
 - **Filtros**: província, mercado, tipo de vendedor, categoria, período (1M, 3M, 6M, 1A, tudo) e intervalo (dia, semana, mês).
+- **Mapa dos locais de registo** (fim da aba Preços): um ponto por mercado e tipo de mercado (Produtor, Grossista, Retalhista), na posição dos registos (coordenadas da camada 0). Todos os pontos têm o mesmo tamanho; a cor indica o tipo de mercado, ou a localização (Cidade, Município/Vila, Rural) se escolher essa opção. Segue os filtros da aba; o popup de cada ponto tem o detalhe e um botão para filtrar por esse mercado. Mapa base: Esri (cinzento claro/escuro), sem chave de acesso.
 - **Boletim semanal** (separador "Boletim semanal" e botão de PDF), no formato do boletim do SIMA:
   - manchete e introdução escritas automaticamente a partir dos dados da semana;
   - "Dinâmica de Preços": para cada produto principal, preço médio da semana contra a semana anterior, máximos e mínimos com os mercados, e um quadro com as variações por mercado;
@@ -126,6 +127,7 @@ Sem internet, o relatório PDF e os tipos de letra não carregam, porque vêm de
 ## Bibliotecas externas
 
 - [jsPDF 2.5.1](https://github.com/parallax/jsPDF) (via cdnjs) para gerar o PDF.
+- [Leaflet 1.9.4](https://leafletjs.com) (via cdnjs) para o mapa, com mapa base cinzento da Esri.
 - Tipos de letra IBM Plex Sans Condensed e IBM Plex Mono (Google Fonts).
 
 Os gráficos são desenhados em canvas, sem bibliotecas adicionais.
