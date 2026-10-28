@@ -343,3 +343,5 @@ dialog::backdrop{background:rgba(5,10,15,.5)}
 .tk-frame iframe{width:100%;height:100%;border:0;display:block}
 .tk-note{margin:0;padding:8px 18px 12px;color:var(--muted);font-size:12.5px}
 @media (max-width:860px){.tk-arrow{display:none}.tk-step{flex-basis:calc(50% - 5px)}.tk-refresh{margin-left:0}.tk-frame{height:70vh}}
+.ab-flow .tk-step{background:var(--panel2)}
+.ab-steps{margin:14px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.5;max-width:95ch}

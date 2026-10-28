@@ -13,6 +13,14 @@ const ABOUT_TXT = {
       "Para cada produto, o inquiridor indica se o produto existe no mercado e a unidade de medida. Recolhe até três amostras de vendedores diferentes, com a quantidade disponível, o preço, o sexo do vendedor e a proveniência do produto. O peso de cada unidade (lata, saco, bacia, etc.) é convertido para kg, o que permite comparar preços entre mercados.",
       "Os preços são recolhidos em três níveis de comercialização: produtor, grossista e retalhista."
     ],
+    flowTitle: "Fluxo dos dados",
+    flow: [["Submissão","Sem login: formulário Survey123","ok"],["Pendente","Todo o novo registo","pend"],["Validação","Técnico com login ArcGIS","ok"],["Preços e Boletim","Só dados validados","ok"]],
+    flowSteps: [
+      "Submissão: os inquiridores enviam os preços pelo formulário Survey123, sem precisarem de iniciar sessão.",
+      "Pendente: cada novo registo entra na base de dados com o estado «pendente» e ainda não é usado nos cálculos.",
+      "Validação: um técnico, com sessão iniciada no ArcGIS, revê os registos na Área Técnica e marca-os como validados ou rejeitados.",
+      "Preços e Boletim: só os registos validados entram nas cotações, gráficos, mapa, boletim e exportações. Os rejeitados ficam de fora."
+    ],
     s2: "O que encontra na plataforma",
     s2l: [
       ["Preços", "Cotações de todos os produtos, ao estilo de uma bolsa de valores: último preço, variação, gráfico de velas, preço por mercado, maiores subidas e descidas, índice SIMA, mapa do mercado e mapa dos locais onde os preços foram registados. Os filtros permitem escolher província, mercado, tipo de vendedor, categoria, período e intervalo."],
@@ -46,6 +54,14 @@ const ABOUT_TXT = {
       "Enumerators visit markets and fill in the price monitoring form in ArcGIS Survey123. Each visit records the province, district, market, location (city, municipality/town or rural area), seller type and monitoring date.",
       "For each product, the enumerator records whether it is available and its unit of measure. Up to three samples are collected from different sellers, with the quantity available, the price, the seller's sex and the product's origin. The weight of each unit (tin, bag, basin, etc.) is converted to kg so prices can be compared across markets.",
       "Prices are collected at three trading levels: producer, wholesale and retail."
+    ],
+    flowTitle: "Data flow",
+    flow: [["Submission","No login: Survey123 form","ok"],["Pending","Every new record","pend"],["Validation","Technician with ArcGIS login","ok"],["Prices and Bulletin","Validated data only","ok"]],
+    flowSteps: [
+      "Submission: enumerators send prices through the Survey123 form, without signing in.",
+      "Pending: every new record enters the database as «pending» and is not yet used in the calculations.",
+      "Validation: a technician signed in to ArcGIS reviews the records in the Technical area and marks them as validated or rejected.",
+      "Prices and Bulletin: only validated records feed the quotes, charts, map, bulletin and exports. Rejected records are left out."
     ],
     s2: "What you will find",
     s2l: [
@@ -90,6 +106,10 @@ function renderAbout(){
     <h2>${esc(A.title)}</h2>
     <p class="ab-lead">${esc(A.lead)}</p>
     <div class="ab-cov"><h3>${esc(A.covTitle)}</h3><div class="b-kpis ab-kpis">${A.cov.map((k,i)=>`<div><span>${esc(k)}</span><b class="num">${cov[i]}</b></div>`).join("")}</div></div>
+  </section>
+  <section class="panel ab-sec ab-flow"><h3>${esc(A.flowTitle)}</h3>
+    <div class="tk-flow">${A.flow.map(([h,s,k],i)=>`<div class="tk-step tk-${k}"><b>${esc(h)}</b><span>${esc(s)}</span></div>${i<A.flow.length-1?'<span class="tk-arrow" aria-hidden="true">→</span>':""}`).join("")}</div>
+    <ol class="ab-steps">${A.flowSteps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol>
   </section>
   <div class="ab-grid">
     <section class="panel ab-sec"><h3>${esc(A.s1)}</h3>${A.s1p.map(p=>`<p>${esc(p)}</p>`).join("")}</section>

@@ -5,7 +5,7 @@ Plataforma web, no estilo de uma bolsa de valores, para acompanhar a evolução 
 ## Funcionalidades
 
 - **Cotações** de todos os produtos: último preço (MZN/kg), variação face ao intervalo anterior e mini-gráfico de tendência.
-- **Gráfico de cada produto** em velas, linha ou área, com média móvel de 4 intervalos e barras com o número de registos.
+- **Gráfico de cada produto** em barras (mínimo, máximo e fecho), linha ou área, com média móvel de 4 intervalos e barras com o número de registos.
 - **Faixa de cotações** a correr no topo da página, como numa bolsa.
 - **Preço por mercado**, **maiores subidas e descidas**, **mapa do mercado** por categoria e **últimos registos de preço**.
 - **Índice SIMA de preços** (base 100 no início do período).
@@ -103,7 +103,7 @@ Os preços internacionais (SAFEX, CBOT) e as taxas de câmbio não fazem parte d
 ## Como os preços são calculados
 
 - **Preço de um registo** (MZN/kg) = média dos campos `preco_kg1`, `preco_kg2` e `preco_kg3` que estiverem preenchidos. Se nenhum estiver preenchido, usa `preco_medio`. Se também não houver, usa a média de `Preço-1`, `Preço-2` e `Preço-3` (`preco1-3`) e o produto aparece em MZN/unidade. Produtos marcados como inexistentes (`disponibilidade = Não`) são ignorados.
-- **Velas**: abertura e fecho são as médias do primeiro e do último dia com registos no intervalo; máximo e mínimo são as amostras extremas; o volume é o número de registos.
+- **Barras**: cada barra vai do preço mínimo ao máximo das amostras do intervalo; o traço marca o fecho (média do último dia com registos). A cor indica se o fecho subiu ou desceu face ao intervalo anterior; o volume é o número de registos. O sistema não usa preço de abertura.
 - **Variação**: fecho do último intervalo face ao fecho do intervalo anterior.
 - **Índice SIMA**: em cada intervalo, média de (fecho do produto ÷ primeiro fecho do produto no período) × 100.
 - As datas usam a hora de Maputo (UTC+2).
