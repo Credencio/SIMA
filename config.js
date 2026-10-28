@@ -42,6 +42,16 @@ window.SIMA_CONFIG = {
   // Desenvolvedor (rodapé do site e última página do boletim)
   developer: { name: "MRV - Unidade de Monitoria, Relatório e Verificação do REDD+", logo: "assets/logos/mrv.png" },
 
+  /* ---------------- Área Técnica ---------------- */
+  technical: {
+    // Aplicação ArcGIS Experience de validação (embebida na aba e aberta no botão "Abrir em nova janela")
+    experienceUrl: "https://experience.arcgis.com/experience/ee9899ada8f54c909019f934fba3d024",
+    // Campo da tabela de produtos (tabela 1) com o estado de validação
+    validationField: "validacao",
+    // true = as abas Preços e Boletim usam só registos validados; false = usam todos
+    onlyValidated: true
+  },
+
   /* ---------------- Boletim semanal (ecrã e PDF) ---------------- */
   bulletin: {
     // Título do boletim (aparece no topo da 1.ª página do PDF)

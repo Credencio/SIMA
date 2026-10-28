@@ -87,6 +87,17 @@ function resolveProduct(v, dom){
   if(dom && dom[s]){ const m=PROD_BY_NORM[norm(dom[s])]; if(m) return m; }
   return s;
 }
+// Estado de validação de um registo (campo "validacao" da tabela de produtos)
+// devolve "val" (validado), "rej" (rejeitado) ou "pend" (pendente / não validado / vazio)
+function validState(v, dom){
+  if(v!=null && dom && dom[v]!=null) v=dom[v];
+  const s=norm(v);
+  if(!s) return "pend";
+  if(s.includes("rejeit")||s.includes("reject")||s.includes("recus")) return "rej";
+  if(s.startsWith("nao")||s.startsWith("not")||s.includes("naovalid")||s.includes("invalid")||s.includes("pendent")||s.includes("porvalid")) return "pend";
+  if(s.includes("valid")||s.includes("aprov")||s.includes("approv")||s==="sim"||s==="yes"||s==="1"||s==="true") return "val";
+  return "pend";
+}
 // Tipo de vendedor / nível de mercado: reclassifica valores antigos do formulário
 // ("Nivel de Grossista Mercado" -> Grossista, "Nivel de Retalhista Mercado" -> Retalhista, etc.)
 function normSeller(v){
@@ -148,7 +159,14 @@ async function loadLive(){
   const dateFields = P.dateFields;
   const dv = (dom, f, v) => (dom[f] && dom[f][v]!=null) ? dom[f][v] : v;
   const obs=[];
+  { const vf=(SIMA_CONFIG.technical?.validationField||"validacao").toLowerCase();
+    const has=(C.fields||[]).some(f=>f.split(" (")[0].toLowerCase()===vf) || C.rows.some(r=>vf in r);
+    const V={val:0,pend:0,rej:0,total:C.rows.length,field:has,at:Date.now(),demo:false};
+    for(const c of C.rows) V[validState(c[vf], C.domains[vf])]++;
+    S.valid=V; D.validation=V; }
   for(const c of C.rows){
+    const vst = validState(c[(SIMA_CONFIG.technical?.validationField||"validacao").toLowerCase()], C.domains[(SIMA_CONFIG.technical?.validationField||"validacao").toLowerCase()]);
+    if(SIMA_CONFIG.technical?.onlyValidated && vst!=="val"){ D.skipped.notValidated=(D.skipped.notValidated||0)+1; continue; }
     const disp = String(pick(c,["disponibilidade"])??"").toLowerCase();
     if(disp.startsWith("n")){ D.skipped.notAvailable++; const pr0=resolveProduct(pick(c,["produto"]), C.domains.produto); if(pr0){ (D.byProd[pr0] ??= {rows:0, kept:0, na:0, noPrice:0, noDate:0, perUnit:0}).na++; D.byProd[pr0].rows++; } continue; }
     const prod = resolveProduct(pick(c,["produto","produtos","product"]), C.domains.produto); if(!prod){ D.skipped.noProduct++; continue; }
@@ -344,6 +362,7 @@ function renderAll(){
   renderTape(); renderWatch(); renderQuote(); drawMain(); renderDepth(); renderMovers(); renderIndex(); renderHeat(); renderTrades(list);
   if(typeof renderBulletin==="function") renderBulletin();
   if(typeof renderMap==="function") renderMap();
+  if(typeof renderTech==="function") renderTech();
   if(typeof renderAbout==="function") renderAbout();
 }
 function renderTape(){
@@ -436,6 +455,8 @@ function renderStatus(){
   const em={net:LANG==="pt"?"ligação bloqueada ou sem rede":"connection blocked or offline",chosen:LANG==="pt"?"modo de demonstração escolhido":"demo mode chosen",timeout:LANG==="pt"?"tempo esgotado":"timed out"};
   if(S.mode==="demo"){ b.innerHTML=t("bannerDemo").replace("{e}",esc(em[S.err]||S.err||em.net)); b.hidden=false; }
   else if(S.mode==="error"){ b.innerHTML=t("bannerError").replace("{e}",esc(em[S.err]||S.err)); b.hidden=false; }
+  else if(S.mode==="live" && !S.obs.length && S.valid && SIMA_CONFIG.technical?.onlyValidated && S.valid.total>0 && !S.valid.val){
+    b.innerHTML=(S.valid.field?t("bannerNoValid"):t("bannerNoValidField")).replace("{p}",fmtN(S.valid.pend,0)).replace("{r}",fmtN(S.valid.rej,0)).replace("{f}",esc(SIMA_CONFIG.technical.validationField||"validacao")); b.hidden=false; }
   else if(S.mode==="live" && !S.obs.length){ b.innerHTML=t("bannerEmpty"); b.hidden=false; }
   else b.hidden=true;
 }
@@ -604,13 +625,13 @@ setInterval(tick,1000);
 
 const FORCE_DEMO = /[?&]demo=1\b/.test(location.search);
 async function load(){
-  if(FORCE_DEMO){ S.obs=demoData(); S.mode="demo"; S.err="chosen"; S.loadedAt=Date.now(); renderStatus(); renderFilters(); renderAll(); return; }
+  if(FORCE_DEMO){ S.obs=demoData(); S.valid={val:S.obs.length,pend:Math.round(S.obs.length*0.04),rej:Math.round(S.obs.length*0.01),total:0,field:true,demo:true}; S.mode="demo"; S.err="chosen"; S.loadedAt=Date.now(); renderStatus(); renderFilters(); renderAll(); return; }
   S.mode="load"; S.loadedAt=null; renderStatus(); $("btnRefresh").disabled=true;
   try{
     const obs = await Promise.race([loadLive(), new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),SIMA_CONFIG.timeoutMs))]);
     S.obs=obs; S.mode="live"; S.err="";
   }catch(e){
-    console.warn("Live load failed:",e); S.obs=SIMA_CONFIG.demoFallback?demoData():[]; S.mode=SIMA_CONFIG.demoFallback?"demo":"error"; S.err = (e && e.message) ? e.message : String(e);
+    console.warn("Live load failed:",e); S.obs=SIMA_CONFIG.demoFallback?demoData():[]; S.valid=SIMA_CONFIG.demoFallback?{val:S.obs.length,pend:Math.round(S.obs.length*0.04),rej:Math.round(S.obs.length*0.01),total:0,field:true,demo:true}:null; S.mode=SIMA_CONFIG.demoFallback?"demo":"error"; S.err = (e && e.message) ? e.message : String(e);
     if(/Failed to fetch|NetworkError|Load failed|TypeError/i.test(S.err)) S.err="net";
   }
   S.loadedAt=Date.now(); $("btnRefresh").disabled=false;

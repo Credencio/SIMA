@@ -22,6 +22,7 @@ const ABOUT_TXT = {
     ],
     s3: "Metodologia",
     s3l: [
+      ["Dados usados", "Só os registos validados na Área Técnica (campo «validacao» da tabela de produtos) entram nos preços, no boletim, no mapa e nas exportações. Os registos pendentes e rejeitados ficam de fora."],
       ["Preço de um registo", "Média dos preços por kg das amostras recolhidas (preco_kg1, preco_kg2, preco_kg3). Se não houver preço por kg, usa-se o preço médio registado. Produtos sem conversão para kg aparecem em MZN por unidade."],
       ["Preço de um mercado na semana", "Média dos registos desse produto, nesse mercado e nesse nível, entre segunda-feira e domingo."],
       ["Preço médio nacional", "Média dos preços dos mercados que reportaram na semana. A tendência compara apenas os mercados com registos nas duas semanas, e uma variação inferior a {th}% é considerada estabilidade."],
@@ -55,6 +56,7 @@ const ABOUT_TXT = {
     ],
     s3: "Methodology",
     s3l: [
+      ["Data used", "Only records validated in the Technical area (the «validacao» field of the products table) are used for prices, the bulletin, the map and exports. Pending and rejected records are left out."],
       ["Price of a record", "Average per-kg price of the samples collected (preco_kg1, preco_kg2, preco_kg3). If no per-kg price exists, the recorded average price is used. Products that cannot be converted to kg are shown in MZN per unit."],
       ["Weekly market price", "Average of the records for that product, market and level from Monday to Sunday."],
       ["National average price", "Average of the prices of markets that reported in the week. The trend only compares markets with records in both weeks; changes below {th}% are treated as stable."],

@@ -57,6 +57,7 @@ const I18N = {
 
 /* Textos do boletim semanal */
 Object.assign(I18N.pt, {
+  tabTech:"Área Técnica", bannerNoValid:"<b>Ainda não há registos validados.</b> O sistema só mostra preços de registos validados ({p} pendentes, {r} rejeitados). Valide os registos na Área Técnica.", bannerNoValidField:"<b>A tabela de produtos não tem o campo «{f}».</b> O sistema só usa registos validados; confirme o nome do campo em config.js (technical.validationField).",
   resetFilters:"Remover filtros", devBy:"Desenvolvido por", tipRecords:"Registos", tipMA:"Média móvel", tipIndex:"Índice", tipFirst:"Primeiro", tipPrev:"Intervalo anterior", tipMarkets:"Mercados", tipCat:"Categoria", tipAvg:"Preço médio", tipSamples:"Registos", tipShare:"Do preço máximo", filtersCleared:"Filtros removidos",
   bAllLevels:"Todos os níveis", bPart:"Parte {n}: mercado {lv}", bCommon:"Informação comum a todos os níveis", bContents:"Conteúdo", noLevelData:"Sem registos de preço deste nível na semana.", zona:"Zona",   tabMarket:"Preços", tabBulletin:"Boletim semanal", tabAbout:"Sobre o SIMA", bWeek:"Semana", bProv:"Província", bLevel:"Nível de mercado", bExport:"Exportar boletim PDF",
   lvRetalhista:"Retalhista", lvGrossista:"Grossista", lvProdutor:"Produtor",
@@ -70,7 +71,7 @@ Object.assign(I18N.pt, {
   q6aNote:"Nota: este quadro reflecte apenas os mercados que enviaram informação de preço na semana. A vermelho: preço mínimo; a verde: preço máximo.",
   qLevel:"Quadro {n}: Preço e mudança percentual a nível {lv} (Mt/kg)",
   qLevelNote:"Nota: \"sem. rec.\" = semana recente; \"sem. ant.\" = semana anterior; \"mud. %\" = mudança percentual.",
-  qQty:"Quadro {n}: Quantidade do produto disponível para compra/venda no mercado grossista e mudança percentual desde a semana anterior (kg)",
+  qQty:"Quadro {n}: Quantidade do produto disponível para compra/venda no mercado grossista na semana (kg)", qtyCur:"Quantidade (kg)",
   qLive:"Quadro {n}: Preços de produtos pecuários em médias mensais (Mt/kg)",
   qFlows:"Quadro {n}: Proveniência dos produtos registada na semana",
   qSex:"Vendedores inquiridos por sexo",
@@ -83,6 +84,7 @@ Object.assign(I18N.pt, {
   female:"Mulheres", male:"Homens", total:"Total", noPrev:"sem registo na semana anterior"
 });
 Object.assign(I18N.en, {
+  tabTech:"Technical area", bannerNoValid:"<b>There are no validated records yet.</b> The system only shows prices from validated records ({p} pending, {r} rejected). Validate the records in the Technical area.", bannerNoValidField:"<b>The products table has no «{f}» field.</b> The system only uses validated records; check the field name in config.js (technical.validationField).",
   resetFilters:"Clear filters", devBy:"Developed by", tipRecords:"Records", tipMA:"Moving average", tipIndex:"Index", tipFirst:"First", tipPrev:"Previous interval", tipMarkets:"Markets", tipCat:"Category", tipAvg:"Average price", tipSamples:"Records", tipShare:"Of highest price", filtersCleared:"Filters cleared",
   bAllLevels:"All levels", bPart:"Part {n}: {lv} market", bCommon:"Information common to all levels", bContents:"Contents", noLevelData:"No price records at this level this week.", zona:"Region",   tabMarket:"Prices", tabBulletin:"Weekly bulletin", tabAbout:"About SIMA", bWeek:"Week", bProv:"Province", bLevel:"Market level", bExport:"Export bulletin PDF",
   lvRetalhista:"Retail", lvGrossista:"Wholesale", lvProdutor:"Producer",
@@ -96,7 +98,7 @@ Object.assign(I18N.en, {
   q6aNote:"Note: this table only shows markets that reported prices this week. Red: lowest price; green: highest price.",
   qLevel:"Table {n}: Price and percentage change at {lv} level (MZN/kg)",
   qLevelNote:"Note: \"this wk\" = this week; \"prev. wk\" = previous week; \"chg. %\" = percentage change.",
-  qQty:"Table {n}: Quantity available for trade in wholesale markets and percentage change from the previous week (kg)",
+  qQty:"Table {n}: Quantity available for trade in wholesale markets this week (kg)", qtyCur:"Quantity (kg)",
   qLive:"Table {n}: Livestock product prices, monthly averages (MZN/kg)",
   qFlows:"Table {n}: Origin of products recorded this week",
   qSex:"Sellers interviewed by sex",

@@ -10,7 +10,7 @@ const XL_T = {
     cDate:"Data", cYear:"Ano", cMonth:"Mês", cWeek:"Semana (ISO)", cProv:"Província", cDist:"Distrito", cMkt:"Mercado", cSel:"Tipo de vendedor", cCat:"Categoria", cCode:"Código",
     cProd:"Produto", cPrice:"Preço", cUnit:"Unidade", cOrig:"Proveniência", cQty:"Quantidade (kg)", cF:"Vendedoras (mulheres)", cM:"Vendedores (homens)",
     cLast:"Último", cChg:"Var. %", cOpen:"Abertura", cLow:"Mínimo", cHigh:"Máximo", cAvg:"Média", cRec:"Registos", cMkts:"Mercados", cLastD:"Último registo", cIdx:"Índice SIMA", cVsAvg:"vs média",
-    cPrev:"Semana anterior", cCur:"Semana recente", cMaxM:"Mercados com o máximo", cMinM:"Mercados com o mínimo", cZone:"Zona", cMonthPrev:"Mês anterior", cMonthCur:"Mês actual",
+    cPrev:"Semana anterior", cCur:"Semana recente", cMaxM:"Mercados com o máximo", cMinM:"Mercados com o mínimo", cZone:"Zona", cMonthPrev:"Mês anterior", cQtyCur:"Quantidade na semana (kg)", cMonthCur:"Mês actual",
     title:"SIMA - Sistema de Monitoria de Preços de Produtos Agrícolas", repTitle:"Relatório de preços", exported:"Exportado em", source:"Fonte", filters:"Filtros", period:"Período",
     demo:"Dados de demonstração (fictícios)", all:"Todos", allF:"Todas", quotes:"Cotações", chartsNote:"Gráficos de linhas do Excel, ligados à folha «Séries»: pode editá-los, mudar cores ou copiá-los.",
     seriesNote:"Fecho de cada intervalo (média do último dia com registos), em MZN/kg. Células vazias = sem registos nesse intervalo.",
@@ -21,7 +21,7 @@ const XL_T = {
       ["Categoria / Código / Produto","Produto registado; o código é o usado nas cotações do sistema."],["Preço","Média dos preço por kg das amostras (preco_kg1-3). Se não houver, preco_medio; se também não houver, média de Preço-1/2/3 (por unidade)."],
       ["Unidade","MZN/kg ou MZN por unidade."],["Proveniência","Origem do produto indicada pelos vendedores."],["Quantidade (kg)","Quantidade disponível declarada nas amostras, convertida para kg quando possível."],
       ["Vendedoras / Vendedores","Número de amostras recolhidas a mulheres e a homens."]],
-    bullT:"Boletim semanal", part:"Parte", dyn:"Dinâmica de preços", weekly:"Preços por mercado e variação", flows:"Fluxos (proveniência)", qty:"Quantidades no mercado grossista (kg)", live:"Pecuária: médias mensais (MZN/kg)",
+    bullT:"Boletim semanal", part:"Parte", dyn:"Dinâmica de preços", weekly:"Preços por mercado e variação", flows:"Fluxos (proveniência)", qty:"Quantidade disponível no mercado grossista na semana (kg)", live:"Pecuária: médias mensais (MZN/kg)",
     level:"Nível de mercado", allLevels:"Todos os níveis", week:"Semana", records:"registos" },
   en:{ btn:"Export Excel", raw:"Raw data", rawD:"Every price record, one per row, ready to filter and analyse.", fmt:"Formatted report",
     fmtD:"The system's tables and charts: quotes, series, charts, price by market, recent records and bulletin.", working:"Preparing the Excel file…", done:"Excel file ready", fail:"Could not build the Excel file",
@@ -29,7 +29,7 @@ const XL_T = {
     cDate:"Date", cYear:"Year", cMonth:"Month", cWeek:"Week (ISO)", cProv:"Province", cDist:"District", cMkt:"Market", cSel:"Seller type", cCat:"Category", cCode:"Code",
     cProd:"Product", cPrice:"Price", cUnit:"Unit", cOrig:"Origin", cQty:"Quantity (kg)", cF:"Female sellers", cM:"Male sellers",
     cLast:"Last", cChg:"Chg. %", cOpen:"Open", cLow:"Low", cHigh:"High", cAvg:"Average", cRec:"Records", cMkts:"Markets", cLastD:"Latest record", cIdx:"SIMA index", cVsAvg:"vs avg",
-    cPrev:"Previous week", cCur:"This week", cMaxM:"Markets at the high", cMinM:"Markets at the low", cZone:"Region", cMonthPrev:"Previous month", cMonthCur:"Current month",
+    cPrev:"Previous week", cCur:"This week", cMaxM:"Markets at the high", cMinM:"Markets at the low", cZone:"Region", cMonthPrev:"Previous month", cQtyCur:"Quantity this week (kg)", cMonthCur:"Current month",
     title:"SIMA - Agricultural Commodity Price Monitoring System", repTitle:"Price report", exported:"Exported", source:"Source", filters:"Filters", period:"Period",
     demo:"Demo data (fictitious)", all:"All", allF:"All", quotes:"Quotes", chartsNote:"Excel line charts linked to the «Series» sheet: you can edit them, change colours or copy them.",
     seriesNote:"Close of each interval (average of the last day with records), in MZN/kg. Empty cells = no records in that interval.",
@@ -40,7 +40,7 @@ const XL_T = {
       ["Category / Code / Product","Product recorded; the code is the one used in the system's quotes."],["Price","Average per-kg price of the samples (preco_kg1-3). Otherwise preco_medio; otherwise the average of Price-1/2/3 (per unit)."],
       ["Unit","MZN/kg or MZN per unit."],["Origin","Product origin reported by the sellers."],["Quantity (kg)","Quantity available reported in the samples, converted to kg when possible."],
       ["Female / Male sellers","Number of samples collected from women and from men."]],
-    bullT:"Weekly bulletin", part:"Part", dyn:"Price dynamics", weekly:"Prices by market and change", flows:"Trade flows (origin)", qty:"Wholesale quantities (kg)", live:"Livestock: monthly averages (MZN/kg)",
+    bullT:"Weekly bulletin", part:"Part", dyn:"Price dynamics", weekly:"Prices by market and change", flows:"Trade flows (origin)", qty:"Quantity available in wholesale markets this week (kg)", live:"Livestock: monthly averages (MZN/kg)",
     level:"Market level", allLevels:"All levels", week:"Week", records:"records" }
 };
 const xt = k => (XL_T[LANG]||XL_T.pt)[k];
@@ -202,8 +202,8 @@ function buildBulletinSheet(wb){
   });
   if(multi){ band(sh,r,t("bCommon").toUpperCase(),W); r+=2; }
   if(R0.qtyRows.length){ sh.set(r,0,{v:xt("qty"),s:XS.subtitle}); r++;
-    header(sh,r,[xt("cMkt"),xt("cProd"),xt("cPrev"),xt("cCur"),xt("cChg")]); r++;
-    R0.qtyRows.forEach(q=>sh.row(r++,[{v:q.mkt,s:XS.cell},{v:pName(q.prod),s:XS.cell},q.p?{v:Math.round(q.p),s:XS.int}:{v:"",s:XS.cell},q.c?{v:Math.round(q.c),s:XS.int}:{v:"",s:XS.cell},xPct(q.c&&q.p?pct(q.c,q.p):null)||{v:"",s:XS.cell}]));
+    header(sh,r,[xt("cMkt"),xt("cProd"),xt("cQtyCur")]); r++;
+    R0.qtyRows.forEach(q=>sh.row(r++,[{v:q.mkt,s:XS.cell},{v:pName(q.prod),s:XS.cell},{v:Math.round(q.c),s:XS.int}]));
     r++; }
   if(R0.liveP.length){ sh.set(r,0,{v:xt("live"),s:XS.subtitle}); r++;
     header(sh,r,[xt("cProv"),xt("cProd"),`${xt("cMonthPrev")} (${fmtD(R0.monthPrev,{month:"long"})})`,`${xt("cMonthCur")} (${fmtD(R0.monthCur,{month:"long"})})`,xt("cChg")]); r++;

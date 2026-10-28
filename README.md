@@ -29,6 +29,8 @@ Plataforma web, no estilo de uma bolsa de valores, para acompanhar a evolução 
   - **Dados brutos**: todos os registos de preço, um por linha (data, semana, província, distrito, mercado, tipo de vendedor, produto, preço, unidade, proveniência, quantidade, vendedores por sexo), com filtros e uma folha "Leia-me".
   - **Relatório formatado**: folhas Resumo (indicadores e cotações), Séries, Gráficos (gráficos de linhas nativos do Excel, editáveis), Preço por mercado, Registos recentes e Boletim (semana, província, mercado e nível escolhidos no separador Boletim semanal). Respeita os filtros do separador Preços.
   Os ficheiros são gerados no próprio navegador, sem enviar dados para outro serviço.
+- **Área Técnica**: fluxo de validação (Submissão → Pendente → Validação → Preços e Boletim), contagem de registos pendentes, validados e rejeitados (campo `validacao` da tabela de produtos) e a aplicação ArcGIS Experience de validação embebida, com o botão "Abrir em nova janela". O endereço da aplicação e o nome do campo estão em `config.js` (`technical`).
+- **Só dados validados**: com `technical.onlyValidated: true` (valor por defeito), preços, boletim, mapa e exportações usam apenas os registos validados.
 - **Sobre o SIMA**: o que é o sistema, como os dados são recolhidos, cobertura actual, metodologia e lista de produtos.
 - **Sobre o SIMA**: separador com a descrição do sistema, a recolha de dados, a cobertura actual, a metodologia e a lista de produtos monitorados.
 - **Português / Inglês**: o botão PT | EN traduz a interface, os produtos, as categorias e o relatório PDF.

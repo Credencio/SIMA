@@ -87,7 +87,7 @@ function bCompute(level){
   const qty={};
   const addQ=(list,key)=>{ for(const o of list){ if(o.sel!=="Grossista"||!o.qty) continue; const k=o.mkt+"|"+o.prod; const q=(qty[k]??={mkt:o.mkt,prov:o.prov,prod:o.prod,c:0,p:0}); q[key]+=o.qty; } };
   addQ(cur,"c"); addQ(prev,"p");
-  const qtyRows=Object.values(qty).filter(q=>q.c||q.p).sort((a,b)=>(zoneRank(a.prov)-zoneRank(b.prov))||a.mkt.localeCompare(b.mkt)||pName(a.prod).localeCompare(pName(b.prod)));
+  const qtyRows=Object.values(qty).filter(q=>q.c).sort((a,b)=>(zoneRank(a.prov)-zoneRank(b.prov))||a.mkt.localeCompare(b.mkt)||pName(a.prod).localeCompare(pName(b.prod)));
   // pecuária: médias mensais por província (mês da semana vs mês anterior)
   const wEnd=new Date((w0+6)*DAY), mY=wEnd.getUTCFullYear(), mM=wEnd.getUTCMonth();
   const mStart=Math.floor(Date.UTC(mY,mM,1)/DAY), mNext=Math.floor(Date.UTC(mY,mM+1,1)/DAY), pStart=Math.floor(Date.UTC(mY,mM-1,1)/DAY);
@@ -252,8 +252,8 @@ function renderBulletin(){
   const parts=Rs.map((R,i)=>`<div id="b-part-${i}" class="b-partwrap">${partHtml(R,qn,i,multi)}</div>`).join("");
   // secções comuns
   const R=R0, nQ=qn();
-  const qtyHtml=`<section class="panel"><div class="ph"><h2>${esc(tf("qQty",{n:nQ}))}</h2></div>${R.qtyRows.length?`<div class="b-tw"><table class="b-t"><thead><tr><th>${esc(t("mercado"))}</th><th>${esc(t("produto"))}</th><th class="r">${esc(t("semAntL"))}</th><th class="r">${esc(t("semRecL"))}</th><th class="r">${esc(t("mud"))}</th></tr></thead><tbody>
-    ${R.qtyRows.map(r=>`<tr><td>${esc(shortMkt(r.mkt))}</td><td>${esc(pName(r.prod))}</td><td class="r num">${r.p?fmtN(r.p,0):"."}</td><td class="r num">${r.c?fmtN(r.c,0):"."}</td><td class="r num ${cls(pct(r.c,r.p))}">${r.c&&r.p?fmtN(pct(r.c,r.p),0):"."}</td></tr>`).join("")}</tbody></table></div>`:`<div class="b-body flat">${esc(t("noQty"))}</div>`}</section>`;
+  const qtyHtml=`<section class="panel"><div class="ph"><h2>${esc(tf("qQty",{n:nQ}))}</h2></div>${R.qtyRows.length?`<div class="b-tw"><table class="b-t"><thead><tr><th>${esc(t("mercado"))}</th><th>${esc(t("produto"))}</th><th class="r">${esc(t("qtyCur"))}</th></tr></thead><tbody>
+    ${R.qtyRows.map(r=>`<tr><td>${esc(shortMkt(r.mkt))}</td><td>${esc(pName(r.prod))}</td><td class="r num">${fmtN(r.c,0)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="b-body flat">${esc(t("noQty"))}</div>`}</section>`;
   const nL=qn(), mc=fmtD(R.monthCur,{month:"long"}), mp=fmtD(R.monthPrev,{month:"long"});
   const liveHtml=`<section class="panel"><div class="ph"><h2>${esc(tf("qLive",{n:nL}))}</h2></div>${R.liveP.length?`<div class="b-tw"><table class="b-t b-wide"><thead><tr><th rowspan="2">${esc(t("provincia"))}</th>${R.liveP.map(p=>`<th colspan="3" class="b-grp">${esc(pName(p))}</th>`).join("")}</tr>
     <tr>${R.liveP.map(()=>`<th class="r">${esc(mp)}</th><th class="r">${esc(mc)}</th><th class="r">${esc(t("mud"))}</th>`).join("")}</tr></thead><tbody>
@@ -271,16 +271,16 @@ function bindBulletin(){
   $("bReset")?.addEventListener("click",()=>{ Object.assign(B,{week:null,prov:"",market:"",level:BC.level}); renderBulletin(); toast(t("filtersCleared"),1600); });
 }
 function setView(v){
-  S.view=v; $("viewMarket").hidden = v!=="market"; $("viewBulletin").hidden = v!=="bulletin"; $("viewAbout").hidden = v!=="about";
+  S.view=v; $("viewMarket").hidden = v!=="market"; $("viewBulletin").hidden = v!=="bulletin"; $("viewAbout").hidden = v!=="about"; if($("viewTech")) $("viewTech").hidden = v!=="tech";
   document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===v)));
   store.set("sima.view",v);
-  if(v==="bulletin") renderBulletin(); else if(v==="about"){ if(typeof renderAbout==="function") renderAbout(); } else { drawMain(); renderIndex(); }
+  if(v==="bulletin") renderBulletin(); else if(v==="about"){ if(typeof renderAbout==="function") renderAbout(); } else if(v==="tech"){ if(typeof renderTech==="function") renderTech(); } else { drawMain(); renderIndex(); }
 }
 $("tabs").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) setView(b.dataset.v); });
 $("lang-pt").addEventListener("click",()=>renderBulletin());
 $("lang-en").addEventListener("click",()=>renderBulletin());
 // separador inicial: o último usado, ou "Sobre o SIMA"
-{ const v0=store.get("sima.view"); setTimeout(()=>setView(["about","market","bulletin"].includes(v0)?v0:"about"),0); }
+{ const v0=store.get("sima.view"); setTimeout(()=>setView(["about","market","bulletin","tech"].includes(v0)?v0:"about"),0); }
 
 /* =====================================================================
    PDF do boletim
@@ -432,9 +432,9 @@ async function bulletinPDF(){
     /* ---- Quantidades no grossista ---- */
     { const n=Q(); if(y+30>BOT) newPage();
       const mainAll=new Set(Rs.flatMap(r=>r.main)); const qRows=R.qtyRows.filter(r=>mainAll.has(r.prod));
-      if(qRows.length) table([{h:t("mercado"),w:50},{h:t("produto"),w:58},{h:t("semAntL"),w:24,r:1},{h:t("semRecL"),w:24,r:1},{h:t("mud"),w:24,r:1}],
-        qRows.map(r=>[shortMkt(r.mkt),pName(r.prod),r.p?fmtN(r.p,0):".",r.c?fmtN(r.c,0):".",r.c&&r.p?fmtN(pct(r.c,r.p),0):"."]),
-        {caption:tf("qQty",{n}),fs:7.4,rh:4.2,colorFn:(ri,ci,v)=>{ if(ci===4&&v!=="."){ const x=parseFloat(String(v).replace(",",".")); return x<0?RED:x>0?GRN:null;} return null; }});
+      if(qRows.length) table([{h:t("mercado"),w:60},{h:t("produto"),w:70},{h:t("qtyCur"),w:40,r:1}],
+        qRows.map(r=>[shortMkt(r.mkt),pName(r.prod),fmtN(r.c,0)]),
+        {caption:tf("qQty",{n}),fs:7.4,rh:4.2});
       else { para(tf("qQty",{n}),{font:"times",style:"bold",size:9.5}); para(t("noQty"),{size:9.5,after:5}); } }
 
     /* ---- Pecuária (médias mensais) ---- */
