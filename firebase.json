@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "site": "simamz",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/*.exe",
+      "**/*.dll",
+      "**/*.bat",
+      "**/*.apk",
+      "**/*.ipa"
+    ]
+  }
+}
