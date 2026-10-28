@@ -81,11 +81,11 @@ window.SIMA_CONFIG = {
     // Ficha técnica no fim do PDF (só aparecem as funções com nomes)
     fichaTecnica: [
       { role: "Edição", names: ["SIMA - Sistema de Monitoria de Preços de Produtos Agrícolas"] },
-      { role: "Direcção", names: [Direcção de Planificação e Políticas] },
-      { role: "Coordenação", names: [Marilda Tembe] },
-      { role: "Gestão de conteúdos e Base de Dados", names: [Avelino] },
-      { role: "Recolha e Entrada dos Dados", names: [Extensionistas da Rede pública (MAAP-DINAE)] },
-      { role: "Maquetização", names: [Unidade de MRV] }
+      { role: "Direcção", names: ["Direcção de Planificação e Políticas"] },
+      { role: "Coordenação", names: ["Marilda Tembe"] },
+      { role: "Gestão de conteúdos e Base de Dados", names: ["Avelino"] },
+      { role: "Recolha e Entrada dos Dados", names: ["Extensionistas da Rede pública (MAAP-DINAE)"] },
+      { role: "Maquetização", names: ["Unidade de MRV"] }
     ]
   }
 };
